@@ -8,8 +8,9 @@ defmodule OctopusPing.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Starts a worker by calling: OctopusPing.Worker.start_link(arg)
-      # {OctopusPing.Worker, arg}
+      {DynamicSupervisor, strategy: :one_for_one, name: OctopusPing.PingSupervisor},
+      {Registry, keys: :unique, name: OctopusPing.Registry},
+      {Task.Supervisor, name: OctopusPing.TaskSupervisor}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
