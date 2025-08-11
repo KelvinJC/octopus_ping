@@ -23,4 +23,18 @@ defmodule OctopusPing.Tasks do
         {:error, :host_unresponsive}
     end
   end
+
+  def curl_site(site) do
+    Process.sleep(2000)
+
+    args = ["-s", "-o", "/dev/null", "-w", "%{http_code}", site]
+
+    case System.cmd("curl", args) do
+      {response_code, _} when response_code in ["200", "301", "302"] ->
+        {:ok, :up}
+
+      _ ->
+        {:error, :down}
+    end
+  end
 end
