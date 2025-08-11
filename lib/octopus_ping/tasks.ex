@@ -25,15 +25,17 @@ defmodule OctopusPing.Tasks do
   end
 
   def curl_site(site) do
-    Process.sleep(2000)
+    Process.sleep(12000)
 
     args = ["-s", "-o", "/dev/null", "-w", "%{http_code}", site]
 
     case System.cmd("curl", args) do
       {response_code, _} when response_code in ["200", "301", "302"] ->
+        IO.puts("curl request to #{site} succeeded with code #{response_code}")
         {:ok, :up}
 
-      _ ->
+      {response_code, _} ->
+        IO.puts("curl request to #{site} failed with status code #{response_code}.")
         {:error, :down}
     end
   end
