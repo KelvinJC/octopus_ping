@@ -3,7 +3,7 @@ defmodule OctopusPing do
   Documentation for `OctopusPing`.
   """
 
-  def start_ping(addresses) when is_list(addresses) do
+  def start_ping(addresses, :ip) when is_list(addresses) do
     IO.puts("Start pinging all IPs in #{inspect(addresses)}.")
     start_worker(
       %{
@@ -17,6 +17,24 @@ defmodule OctopusPing do
           "127.0.0.1"
         ],
         category: "IPs"
+      }
+    )
+  end
+
+  def start_curl(urls, :app) when is_list(urls) do
+    IO.puts("Start curl requests to all site urls in #{inspect(urls)}.")
+    start_worker(
+      %{
+        addresses: [
+          "https://abujaelectricity.com/24",
+          "https://bbc.com",
+          "https://cnn.com",
+          "https://outage.abujaelectricity.com",
+          "https://leave.abujaelectricity.com",
+          "https://pay4energy.abujaelectricity.com",
+          "https://mak3erad8479r.com"
+        ],
+        category: "Apps"
       }
     )
   end
