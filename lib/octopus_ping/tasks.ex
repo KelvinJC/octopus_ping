@@ -1,7 +1,20 @@
 defmodule OctopusPing.Tasks do
   def ping_host(host) do
-    case System.cmd("ping", [host, "-c 1", "-w 2"]) do
-    # case System.cmd("ping", [host, "-w 2"]) do  # {"Access denied. Option -c 1 requires administrative privileges.\r\n", 1}
+    Process.sleep(2000)
+
+    command =
+      case :os.type() do
+        {:unix, :linux} ->
+          ["ping", [host, "-c 1", "-w 2"]]
+
+        {:win32, :nt} ->
+          ["ping", [host]]
+
+        _ -> # MacOS et al
+          ["ping", [host]]
+      end
+
+    case System.cmd(hd(command), Enum.at(command, 1)) do
       {_, 0} ->
         IO.puts("pinging #{host}")
         {:ok, :alive}
