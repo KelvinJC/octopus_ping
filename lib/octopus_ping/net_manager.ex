@@ -42,10 +42,12 @@ defmodule OctopusPing.NetManager do
     {:noreply, state}
   end
 
+  # the ping request succeeds
   def handle_info({_ref, {:ok, _msg}}, state) do
     {:noreply, state}
   end
 
+  # the ping request fails
   def handle_info({_ref, {:error, _msg}}, state) do
     {:noreply, state}
   end
