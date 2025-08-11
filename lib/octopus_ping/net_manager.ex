@@ -42,5 +42,18 @@ defmodule OctopusPing.NetManager do
     {:noreply, state}
   end
 
+  def handle_info({_ref, {:ok, _msg}}, state) do
+    {:noreply, state}
+  end
+
+  def handle_info({_ref, {:error, _msg}}, state) do
+    {:noreply, state}
+  end
+
+  # the task itself failed
+  def handle_info({:DOWN, _ref, :process, _pid, _reason}, state) do
+    {:noreply, state}
+  end
+
   defp via_tuple(name), do: {:via, Registry, {OctopusPing.Registry, name}}
 end
