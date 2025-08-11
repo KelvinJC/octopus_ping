@@ -12,9 +12,21 @@ defmodule OctopusPing.NetManager do
   end
 
   def init(network_resource) do
-    # Send a message to our self that we should start pinging at once!
-    Process.send(self(), :start_ping, [])
+    # Send a message to our self that we should start the tasks at once!
+    Process.send(self(), :start_tasks, [])
     {:ok, %{network_resource: network_resource, tasks: MapSet.new()}}
+  end
+
+  def handle_cast({:task, url}, %{network_resource: %{category: "Apps"}} = state) do
+    task =
+      Task.Supervisor.async_nolink(
+        OctopusPing.TaskSupervisor, # reference the task supervisor by name
+        fn -> Tasks.curl_site(url) end
+      )
+
+    # Register the task in the GenServer state, so that we can track which
+    # tasks responded with a successful curl request, and which didn't.
+    {:noreply, %{state | tasks: MapSet.put(state.tasks, %{url: url, status: :pending, task: task})}}
   end
 
   def handle_cast({:task, host}, state) do
@@ -29,7 +41,7 @@ defmodule OctopusPing.NetManager do
     {:noreply, %{state | tasks: MapSet.put(state.tasks, %{host: host, status: :pending, task: task})}}
   end
 
-  def handle_info(:start_ping, state) do
+  def handle_info(:start_tasks, state) do
     Enum.map(
       state.network_resource.addresses,
       fn host ->
