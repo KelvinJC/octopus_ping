@@ -19,7 +19,7 @@ defmodule OctopusPing.Tasks do
         Logger.info("pinging #{host}")
         {:ok, :alive}
       error ->
-        Logger.error("could not ping #{host} due to error: \n#{inspect(error)}\n\n")
+        Logger.error("could not ping #{host} due to error: \n#{inspect(error)}")
         {:error, :host_unresponsive}
     end
   end
