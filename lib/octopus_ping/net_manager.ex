@@ -79,6 +79,28 @@ defmodule OctopusPing.NetManager do
     {:noreply, state}
   end
 
+  def handle_call(:get_successful, _from, state) do
+    tasks =
+      Enum.filter(
+        state.tasks,
+        fn %{status: status} ->
+          status == :successful
+        end
+      )
+
+    hosts_or_urls =
+      for task <- tasks do
+        case state.network_resource.category do
+          "IPs" ->
+            task.host
+          "Apps" ->
+            task.url
+        end
+      end
+
+    {:reply, hosts_or_urls, state}
+  end
+
   defp process_task(task_reference, state, task_status) do
     # demonitor and flush task process.
     Process.demonitor(task_reference, [:flush])
