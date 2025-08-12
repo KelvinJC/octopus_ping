@@ -6,7 +6,7 @@ defmodule OctopusPing.NetManager do
 
   # network_resource is a map with 2 keys
   # `addresses` - a list of ip addresses or a list of web urls
-  # `category` - the description of the resource. Currently `IPs` or `Applications`
+  # `category` - the description of the resource. Currently `IPs` or `Apps`
   def start_link(%{addresses: addresses, category: category} = network_resource) when is_list(addresses) do
     GenServer.start_link(__MODULE__, network_resource, name: via_tuple(category))
   end
@@ -63,14 +63,12 @@ defmodule OctopusPing.NetManager do
   # the request succeeds
   def handle_info({ref, {:ok, _msg}}, state) do
     updated_tasks = process_task(ref, state, :successful)
-
     {:noreply, %{state | tasks: updated_tasks}}
   end
 
   # the request fails
   def handle_info({ref, {:error, _msg}}, state) do
     updated_tasks = process_task(ref, state, :failed)
-
     {:noreply, %{state | tasks: updated_tasks}}
   end
 
@@ -80,26 +78,16 @@ defmodule OctopusPing.NetManager do
   end
 
   def handle_call(:get_successful, _from, state) do
-    tasks =
-      Enum.filter(
-        state.tasks,
-        fn %{status: status} ->
-          status == :successful
-        end
-      )
-
-    hosts_or_urls =
-      for task <- tasks do
-        case state.network_resource.category do
-          "IPs" ->
-            task.host
-          "Apps" ->
-            task.url
-        end
-      end
-
+    hosts_or_urls = filter_by_status(:successful, state.tasks)
     {:reply, hosts_or_urls, state}
   end
+
+  def handle_call(:get_failed, _from, state) do
+    hosts_or_urls = filter_by_status(:failed, state.tasks)
+    {:reply, hosts_or_urls, state}
+  end
+
+  defp via_tuple(name), do: {:via, Registry, {OctopusPing.Registry, name}}
 
   defp process_task(task_reference, state, task_status) do
     # demonitor and flush task process.
@@ -126,5 +114,17 @@ defmodule OctopusPing.NetManager do
     end
   end
 
-  defp via_tuple(name), do: {:via, Registry, {OctopusPing.Registry, name}}
+  def filter_by_status(task_status, tasks) do
+    Enum.flat_map(
+      tasks,
+      fn %{status: status} = task ->
+        if status == task_status do
+          hosts_or_urls = Map.get(task, :host, Map.get(task, :url))
+          [hosts_or_urls]
+        else
+          []
+        end
+      end
+    )
+  end
 end
