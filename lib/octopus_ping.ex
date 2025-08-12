@@ -26,13 +26,9 @@ defmodule OctopusPing do
     start_worker(
       %{
         addresses: [
-          "https://abujaelectricity.com/24",
           "https://bbc.com",
           "https://cnn.com",
-          "https://outage.abujaelectricity.com",
-          "https://leave.abujaelectricity.com",
-          "https://pay4energy.abujaelectricity.com",
-          "https://mak3erad8479r.com"
+          "https://netflix.com"
         ],
         category: "Apps"
       }
@@ -47,12 +43,14 @@ defmodule OctopusPing do
     IO.puts("Stop pinging all IPs in #{addresses}.")
   end
 
-  def get_successful_hosts() do
-    IO.puts("I will report successful hosts")
+  def get_live(name) do
+    via_tuple(name)
+    |> GenServer.call(:get_successful)
   end
 
-  def get_failed_hosts() do
-    IO.puts("I will report failed hosts")
+  def get_dead(name) do # or get_unreachable(name)
+    via_tuple(name)
+    |> GenServer.call(:get_failed)
   end
 
   defp start_worker(resource) do
@@ -61,4 +59,6 @@ defmodule OctopusPing do
       {OctopusPing.NetManager, resource}
     )
   end
+
+  defp via_tuple(name), do: {:via, Registry, {OctopusPing.Registry, name}}
 end
