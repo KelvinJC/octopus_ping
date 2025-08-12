@@ -19,7 +19,7 @@ defmodule OctopusPing.NetManager do
 
   defp schedule() do
     # Send a message that we should start the tasks after the specified period!
-    Process.send_after(self(), :start_tasks, 1000)
+    Process.send_after(self(), :start_tasks, 60_000)
   end
 
   def handle_cast({:task, url}, %{network_resource: %{category: "Apps"}} = state) do
