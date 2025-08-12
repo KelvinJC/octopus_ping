@@ -55,8 +55,43 @@ defmodule OctopusPing.NetManager do
   end
 
   # the ping request succeeds
-  def handle_info({_ref, {:ok, _msg}}, state) do
-    {:noreply, state}
+  def handle_info({ref, {:ok, :alive}}, state) do
+    task =
+      Enum.find(
+        state.tasks,
+        fn %{host: _host, status: _status, task: %{ref: r}} ->
+          r == ref
+        end
+      )
+
+    Logger.info("Successfully pinged host #{task.host}")
+
+    updated_tasks =
+      state.tasks
+      |> MapSet.delete(task)
+      |> MapSet.put(%{task | status: :successful})
+
+    {:noreply, %{state | tasks: updated_tasks}}
+  end
+
+  # the curl request succeeds
+  def handle_info({ref, {:ok, :up}}, state) do
+    task =
+      Enum.find(
+        state.tasks,
+        fn %{url: _url, status: _status, task: %{ref: r}} ->
+          r == ref
+        end
+      )
+
+    Logger.info("Successful curl request made to url #{task.url}")
+
+    updated_tasks =
+      state.tasks
+      |> MapSet.delete(task)
+      |> MapSet.put(%{task | status: :successful})
+
+    {:noreply, %{state | tasks: updated_tasks}}
   end
 
   # the ping request fails
