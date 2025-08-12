@@ -1,7 +1,5 @@
 defmodule OctopusPing.Tasks do
   def ping_host(host) do
-    Process.sleep(2000)
-
     command =
       case :os.type() do
         {:unix, :linux} ->
@@ -25,8 +23,6 @@ defmodule OctopusPing.Tasks do
   end
 
   def curl_site(site) do
-    Process.sleep(12000)
-
     args = ["-s", "-o", "/dev/null", "-w", "%{http_code}", site]
 
     case System.cmd("curl", args) do
