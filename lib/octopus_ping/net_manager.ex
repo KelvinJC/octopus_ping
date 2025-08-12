@@ -57,7 +57,7 @@ defmodule OctopusPing.NetManager do
     )
 
     schedule()
-    {:noreply, state}
+    {:noreply, %{state | tasks: MapSet.new()}} # start each task round with a new task list
   end
 
   # the ping request succeeds
@@ -70,14 +70,20 @@ defmodule OctopusPing.NetManager do
         end
       )
 
-    Logger.info("Successfully pinged host #{task.host}")
     # demonitor and flush task.
     Process.demonitor(ref, [:flush])
 
     updated_tasks =
-      state.tasks
-      |> MapSet.delete(task)
-      |> MapSet.put(%{task | status: :successful})
+      case task do
+        nil ->
+          state.tasks
+        _task_found ->
+          Logger.info("Successfully pinged host #{task.host}")
+
+          state.tasks
+          |> MapSet.delete(task)
+          |> MapSet.put(%{task | status: :successful})
+      end
 
     {:noreply, %{state | tasks: updated_tasks}}
   end
