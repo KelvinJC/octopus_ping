@@ -12,9 +12,14 @@ defmodule OctopusPing.NetManager do
   end
 
   def init(network_resource) do
-    # Send a message to our self that we should start the tasks at once!
-    Process.send(self(), :start_tasks, [])
+    # Schedule a message to our self
+    schedule()
     {:ok, %{network_resource: network_resource, tasks: MapSet.new()}}
+  end
+
+  defp schedule() do
+    # Send a message that we should start the tasks after the specified period!
+    Process.send_after(self(), :start_tasks, 1000)
   end
 
   def handle_cast({:task, url}, %{network_resource: %{category: "Apps"}} = state) do
@@ -51,6 +56,7 @@ defmodule OctopusPing.NetManager do
       end
     )
 
+    schedule()
     {:noreply, state}
   end
 
@@ -65,6 +71,8 @@ defmodule OctopusPing.NetManager do
       )
 
     Logger.info("Successfully pinged host #{task.host}")
+    # demonitor and flush task.
+    Process.demonitor(ref, [:flush])
 
     updated_tasks =
       state.tasks
