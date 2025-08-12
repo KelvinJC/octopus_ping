@@ -1,4 +1,6 @@
 defmodule OctopusPing.Tasks do
+  require Logger
+
   def ping_host(host) do
     command =
       case :os.type() do
@@ -14,10 +16,10 @@ defmodule OctopusPing.Tasks do
 
     case System.cmd(hd(command), Enum.at(command, 1)) do
       {_, 0} ->
-        IO.puts("pinging #{host}")
+        Logger.info("pinging #{host}")
         {:ok, :alive}
       error ->
-        IO.puts("could not ping #{host} due to error: \n#{inspect(error)}\n\n")
+        Logger.error("could not ping #{host} due to error: \n#{inspect(error)}\n\n")
         {:error, :host_unresponsive}
     end
   end
@@ -27,11 +29,11 @@ defmodule OctopusPing.Tasks do
 
     case System.cmd("curl", args) do
       {response_code, _} when response_code in ["200", "301", "302"] ->
-        IO.puts("curl request to #{site} succeeded with code #{response_code}")
+        Logger.info("curl request to #{site} succeeded with code #{response_code}")
         {:ok, :up}
 
       {response_code, _} ->
-        IO.puts("curl request to #{site} failed with status code #{response_code}.")
+        Logger.error("curl request to #{site} failed with status code #{response_code}.")
         {:error, :down}
     end
   end
