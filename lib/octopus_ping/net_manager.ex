@@ -60,62 +60,48 @@ defmodule OctopusPing.NetManager do
     {:noreply, %{state | tasks: MapSet.new()}} # start each task round with a new task list
   end
 
-  # the ping request succeeds
-  def handle_info({ref, {:ok, :alive}}, state) do
-    task =
-      Enum.find(
-        state.tasks,
-        fn %{host: _host, status: _status, task: %{ref: r}} ->
-          r == ref
-        end
-      )
-
-    # demonitor and flush task.
-    Process.demonitor(ref, [:flush])
-
-    updated_tasks =
-      case task do
-        nil ->
-          state.tasks
-        _task_found ->
-          Logger.info("Successfully pinged host #{task.host}")
-
-          state.tasks
-          |> MapSet.delete(task)
-          |> MapSet.put(%{task | status: :successful})
-      end
+  # the request succeeds
+  def handle_info({ref, {:ok, _msg}}, state) do
+    updated_tasks = process_task(ref, state, :successful)
 
     {:noreply, %{state | tasks: updated_tasks}}
   end
 
-  # the curl request succeeds
-  def handle_info({ref, {:ok, :up}}, state) do
-    task =
-      Enum.find(
-        state.tasks,
-        fn %{url: _url, status: _status, task: %{ref: r}} ->
-          r == ref
-        end
-      )
-
-    Logger.info("Successful curl request made to url #{task.url}")
-
-    updated_tasks =
-      state.tasks
-      |> MapSet.delete(task)
-      |> MapSet.put(%{task | status: :successful})
+  # the request fails
+  def handle_info({ref, {:error, _msg}}, state) do
+    updated_tasks = process_task(ref, state, :failed)
 
     {:noreply, %{state | tasks: updated_tasks}}
-  end
-
-  # the ping request fails
-  def handle_info({_ref, {:error, _msg}}, state) do
-    {:noreply, state}
   end
 
   # the task itself failed
   def handle_info({:DOWN, _ref, :process, _pid, _reason}, state) do
     {:noreply, state}
+  end
+
+  defp process_task(task_reference, state, task_status) do
+    # demonitor and flush task process.
+    Process.demonitor(task_reference, [:flush])
+
+    # query task info from state
+    task =
+      Enum.find(
+        state.tasks,
+        fn %{task: %{ref: ref_id}}  ->
+          ref_id == task_reference
+        end
+      )
+
+    # update task info in state
+    case task do
+      nil ->
+        state.tasks
+
+      _task_found ->
+        state.tasks
+        |> MapSet.delete(task)
+        |> MapSet.put(%{task | status: task_status})
+    end
   end
 
   defp via_tuple(name), do: {:via, Registry, {OctopusPing.Registry, name}}
