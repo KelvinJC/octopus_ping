@@ -2,7 +2,7 @@
 
 **A concurrent network monitor.**
 
-OctopusPing is a simple network monitor built to track the health of devices on your network such as routers, virtual machines, servers, switches etc... 
+OctopusPing is a network monitor built to track the health of devices on your network such as routers, virtual machines, servers, switches etc... 
 
 It is also capable of monitoring websites to ensure uptime and availability.
 
