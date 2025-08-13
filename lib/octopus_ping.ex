@@ -35,12 +35,15 @@ defmodule OctopusPing do
     )
   end
 
-  def start_ping(_addresses) do
+  def start(_addresses) do
     IO.puts("Error. Invalid value for addresses.")
   end
 
-  def stop_ping(addresses) do
-    IO.puts("Stop pinging all IPs in #{addresses}.")
+  def stop(name) do
+    via_tuple(name)
+    |> GenServer.cast(:stop)
+
+    IO.puts("Stop monitoring #{name}.")
   end
 
   def get_live(name) do
