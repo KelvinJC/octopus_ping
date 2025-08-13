@@ -2,20 +2,32 @@
 
 **A concurrent network monitor**
 
-## Installation
+## Give it a spin with the following examples
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `octopus_ping` to your list of dependencies in `mix.exs`:
+**To monitor a bunch of network devices, provide a list of their IP addresses**
+```iex
 
-```elixir
-def deps do
-  [
-    {:octopus_ping, "~> 0.1.0"}
+  OctopusPing.start("IPs", [
+    "127.0.0.1"
+    "8.8.8.8",
+    "172.20.112.1",
+    "172.24.5.87",
+    "172.20.10.4"
   ]
-end
+)
+
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/octopus_ping>.
+**While to monitor any number of sites, provide a list of their URLs**
+
+```iex
+
+  OctopusPing.start("Apps", [
+    "https://bbc.com",
+    "https://cnn.com",
+    "https://netflix.com"
+  ]
+)
+```
+
 
