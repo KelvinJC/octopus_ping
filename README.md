@@ -1,6 +1,6 @@
 # OctopusPing
 
-**TODO: Add description**
+**A concurrent network monitor**
 
 ## Installation
 
