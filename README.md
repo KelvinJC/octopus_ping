@@ -50,5 +50,6 @@ If you would like to run the application for yourself, you need to install Elixi
   iex> OctopusPing.start(["https://bbc.com", "https://cnn.com", "https://netflix.com"], :url)
 ```
 
-![](img/observer.jpg)
 ![](img/system_design.png)
+![](img/observer.jpg)
+
