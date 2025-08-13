@@ -8,7 +8,7 @@ defmodule OctopusPing do
     Logger.info("Start pinging all IPs in #{inspect(addresses)}.")
     start_worker(
       %{
-        category: "IPs",
+        category: :ip,
         addresses: addresses
       }
     )
@@ -23,7 +23,7 @@ defmodule OctopusPing do
     Logger.info("Start pinging all IPs in #{inspect(addresses)}.")
     start_worker(
       %{
-        category: "Apps",
+        category: :url,
         addresses: addresses
       }
     )
