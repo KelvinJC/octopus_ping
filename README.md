@@ -7,7 +7,7 @@ It supports concurrent checks of **IP addresses** and **application endpoints (U
 via periodic ping and HTTP requests. Designed for scalability, it can handle multiple targets simultaneously  
 while remaining easy to extend and integrate into existing infrastructure.
 
-## How It Works
+### How It Works
 
 OctopusPing treats monitored resources as one of two categories:
 
