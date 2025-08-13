@@ -50,6 +50,13 @@ If you would like to run the application for yourself, you need to install Elixi
   iex> OctopusPing.start(["https://bbc.com", "https://cnn.com", "https://netflix.com"], :url)
 ```
 
+
+
+### System Design
+
+**Supervision tree**
 ![](img/system_design.png)
+
+**Visualisation of supervision tree via BEAM :observer tool**
 ![](img/observer.jpg)
 
