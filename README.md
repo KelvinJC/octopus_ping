@@ -7,7 +7,7 @@
 **To monitor a bunch of network devices, provide a list of their IP addresses**
 ```iex
 
-  OctopusPing.start("IPs", [
+  OctopusPing.start([
     "127.0.0.1"
     "8.8.8.8",
     "172.20.112.1",
@@ -22,12 +22,7 @@
 
 ```iex
 
-  OctopusPing.start("Apps", [
-    "https://bbc.com",
-    "https://cnn.com",
-    "https://netflix.com"
-  ]
-)
+  OctopusPing.start(["https://bbc.com", "https://cnn.com", "https://netflix.com"], :url)
 ```
 
 
