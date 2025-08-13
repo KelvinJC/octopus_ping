@@ -139,10 +139,9 @@ defmodule OctopusPing.NetManager do
       ...>   %{
       ...>      host: "8.8.8.8",
       ...>      status: :failed
-      ...>    }.....
+      ...>    }
       ...> ]
-
-      iex> filter_by_task_status(:failed, tasks)
+      iex> OctopusPing.NetManager.filter_by_status(:failed, tasks)
       ["8.8.8.8"]
   """
   def filter_by_status(task_status, tasks) do
