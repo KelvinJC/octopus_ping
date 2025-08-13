@@ -22,7 +22,7 @@ defmodule OctopusPing.NetManager do
     Process.send_after(self(), :start_tasks, 60_000)
   end
 
-  def handle_cast({:task, url}, %{network_resource: %{category: "Apps"}} = state) do
+  def handle_cast({:task, url}, %{network_resource: %{category: :url}} = state) do
     task =
       Task.Supervisor.async_nolink(
         OctopusPing.TaskSupervisor, # reference the task supervisor by name
