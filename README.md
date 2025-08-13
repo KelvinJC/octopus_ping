@@ -7,14 +7,7 @@
 **To monitor a bunch of network devices, provide a list of their IP addresses**
 ```iex
 
-  OctopusPing.start([
-    "127.0.0.1"
-    "8.8.8.8",
-    "172.20.112.1",
-    "172.24.5.87",
-    "172.20.10.4"
-  ]
-)
+  OctopusPing.start(["127.0.0.1","8.8.8.8"])
 
 ```
 
