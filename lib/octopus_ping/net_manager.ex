@@ -14,7 +14,7 @@ defmodule OctopusPing.NetManager do
   def init(network_resource) do
     # Schedule a message to our self
     schedule()
-    {:ok, %{network_resource: network_resource, tasks: MapSet.new()}}
+    {:ok, %{network_resource: network_resource, tasks: MapSet.new(), halt: :false}}
   end
 
   defp schedule() do
@@ -46,17 +46,29 @@ defmodule OctopusPing.NetManager do
     {:noreply, %{state | tasks: MapSet.put(state.tasks, %{host: host, status: :pending, task: task})}}
   end
 
-  def handle_info(:start_tasks, state) do
-    Enum.map(
-      state.network_resource.addresses,
-      fn host ->
-        state.network_resource.category
-        |> via_tuple()
-        |> GenServer.cast({:task, host})
-      end
-    )
+  def handle_cast(:stop_tasks, state), do: {:noreply, %{state | halt: :true}}
 
+  def handle_cast(:restart_tasks, state) do
     schedule()
+    {:noreply, %{state | halt: :false}}
+  end
+
+  def handle_info(:start_tasks, state) do
+    if state.halt do
+      Logger.info("Tasks have been stopped. \nState: #{inspect(state)}")
+    else
+      Enum.map(
+        state.network_resource.addresses,
+        fn host ->
+          state.network_resource.category
+          |> via_tuple()
+          |> GenServer.cast({:task, host})
+        end
+      )
+
+      schedule()
+    end
+
     {:noreply, %{state | tasks: MapSet.new()}} # start each task round with a new task list
   end
 
