@@ -6,7 +6,7 @@ defmodule OctopusPing do
 
   def start(addresses) when is_list(addresses) do
     Logger.info("Start pinging all IPs in #{inspect(addresses)}.")
-    start_worker(
+    start_manager(
       %{
         category: :ip,
         addresses: addresses
@@ -21,7 +21,7 @@ defmodule OctopusPing do
 
   def start(addresses, :url) when is_list(addresses) do
     Logger.info("Start pinging all IPs in #{inspect(addresses)}.")
-    start_worker(
+    start_manager(
       %{
         category: :url,
         addresses: addresses
@@ -56,7 +56,7 @@ defmodule OctopusPing do
     |> GenServer.call(:get_failed)
   end
 
-  defp start_worker(resource) do
+  defp start_manager(resource) do
     DynamicSupervisor.start_child(
       OctopusPing.PingSupervisor,
       {OctopusPing.NetManager, resource}
