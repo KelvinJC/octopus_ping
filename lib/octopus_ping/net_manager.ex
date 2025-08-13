@@ -114,6 +114,37 @@ defmodule OctopusPing.NetManager do
     end
   end
 
+  @doc """
+  Extracts the hosts or URLs of tasks matching the given status.
+
+  ## Parameters
+    * `task_status` — the task status to match (e.g., `:successful`, `:failed`).
+    * `tasks` — the list of task maps stored in state. Each containing a `:status` key
+      and a `:host` or `:url` key
+
+  ## Returns
+  A list of hosts or URLs for all tasks whose status matches `task_status`.
+
+  ## Examples
+
+      iex> tasks = [
+      ...>   %{
+      ...>      host: "192.168.0.1",
+      ...>      status: :pending
+      ...>    },
+      ...>   %{
+      ...>      host: "127.0.0.1",
+      ...>      status: :successful
+      ...>    },
+      ...>   %{
+      ...>      host: "8.8.8.8",
+      ...>      status: :failed
+      ...>    }.....
+      ...> ]
+
+      iex> filter_by_task_status(:failed, tasks)
+      ["8.8.8.8"]
+  """
   def filter_by_status(task_status, tasks) do
     Enum.flat_map(
       tasks,
