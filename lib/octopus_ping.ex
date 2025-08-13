@@ -2,26 +2,43 @@ defmodule OctopusPing do
   @moduledoc """
   Documentation for `OctopusPing`.
   """
+  require Logger
 
-  def start(category, addresses) when is_list(addresses) do
-    IO.puts("Start pinging all IPs in #{inspect(addresses)}.")
+  def start(addresses) when is_list(addresses) do
+    Logger.info("Start pinging all IPs in #{inspect(addresses)}.")
     start_worker(
       %{
-        category: category,
+        category: "IPs",
         addresses: addresses
       }
     )
   end
 
   def start(_) do
-    IO.puts("Error. Invalid argument value for addresses.")
+    Logger.error("Error. Invalid argument value. start/1 expects a list of IP addresses.")
+    {:error, :invalid_arg}
+  end
+
+  def start(addresses, :url) when is_list(addresses) do
+    Logger.info("Start pinging all IPs in #{inspect(addresses)}.")
+    start_worker(
+      %{
+        category: "Apps",
+        addresses: addresses
+      }
+    )
+  end
+
+  def start(_, _) do
+    Logger.error("Error. Invalid argument values. start/2 expects a list of IP addresses and :url")
+    {:error, :invalid_arg}
   end
 
   def stop(name) do
     via_tuple(name)
     |> GenServer.cast(:stop_tasks)
 
-    IO.puts("Stop monitoring #{name}.")
+    Logger.info("Stop monitoring #{name}.")
   end
 
   def restart(name) do
