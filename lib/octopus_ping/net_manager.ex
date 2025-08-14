@@ -7,8 +7,8 @@ defmodule OctopusPing.NetManager do
   # network_resource is a map with 2 keys
   # `addresses` - a list of ip addresses or a list of web urls
   # `category` - the description of the resource. Currently `IPs` or `Apps`
-  def start_link(%{addresses: addresses, category: category} = network_resource) when is_list(addresses) do
-    GenServer.start_link(__MODULE__, network_resource, name: via_tuple(category))
+  def start_link(%{name: name, addresses: addresses, category: _category} = network_resource) when is_list(addresses) do
+    GenServer.start_link(__MODULE__, network_resource, name: via_tuple(name))
   end
 
   def init(network_resource) do
@@ -60,7 +60,7 @@ defmodule OctopusPing.NetManager do
       Enum.map(
         state.network_resource.addresses,
         fn host ->
-          state.network_resource.category
+          state.network_resource.name
           |> via_tuple()
           |> GenServer.cast({:task, host})
         end

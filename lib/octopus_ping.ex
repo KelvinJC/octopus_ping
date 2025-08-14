@@ -3,15 +3,18 @@ defmodule OctopusPing do
   Documentation for `OctopusPing`.
   """
   require Logger
+  alias OctopusPing.NameGen
 
   def start(addresses) when is_list(addresses) do
+    name = NameGen.generate()
+    resource = %{
+      name: name,
+      category: :ip,
+      addresses: addresses
+    }
+    start_manager(resource)
     Logger.info("Start pinging all IPs in #{inspect(addresses)}.")
-    start_manager(
-      %{
-        category: :ip,
-        addresses: addresses
-      }
-    )
+    name
   end
 
   def start(_) do
@@ -20,13 +23,15 @@ defmodule OctopusPing do
   end
 
   def start(addresses, :url) when is_list(addresses) do
-    Logger.info("Start pinging all IPs in #{inspect(addresses)}.")
-    start_manager(
-      %{
-        category: :url,
-        addresses: addresses
-      }
-    )
+    name = NameGen.generate()
+    resource = %{
+      name: name,
+      category: :url,
+      addresses: addresses
+    }
+    start_manager(resource)
+    Logger.info("Start curl requests to all URLs in #{inspect(addresses)}.")
+    name
   end
 
   def start(_, _) do
@@ -44,6 +49,7 @@ defmodule OctopusPing do
   def restart(name) do
     via_tuple(name)
     |> GenServer.cast(:restart_tasks)
+    Logger.info("Restart monitoring #{name}.")
   end
 
   def get_live(name) do
