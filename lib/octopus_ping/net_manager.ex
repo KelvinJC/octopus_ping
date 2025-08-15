@@ -4,6 +4,8 @@ defmodule OctopusPing.NetManager do
   alias OctopusPing.Tasks
   require Logger
 
+  defstruct [:network_resource, :tasks, halt: :false]
+
   # network_resource is a map with 2 keys
   # `addresses` - a list of ip addresses or a list of web urls
   # `category` - the description of the resource. Currently `IPs` or `Apps`
@@ -14,7 +16,7 @@ defmodule OctopusPing.NetManager do
   def init(network_resource) do
     # Schedule a message to our self
     schedule()
-    {:ok, %{network_resource: network_resource, tasks: MapSet.new(), halt: :false}}
+    {:ok, %__MODULE__{network_resource: network_resource, tasks: MapSet.new(), halt: :false}}
   end
 
   defp schedule() do
@@ -31,7 +33,11 @@ defmodule OctopusPing.NetManager do
 
     # Register the task in the GenServer state, so that we can track which
     # tasks responded with a successful curl request, and which didn't.
-    {:noreply, %{state | tasks: MapSet.put(state.tasks, %{url: url, status: :pending, task: task})}}
+    updated_tasks = MapSet.put(
+      state.tasks,
+      %{url: url, status: :pending, task: task}
+    )
+    {:noreply, %{state | tasks: updated_tasks}}
   end
 
   def handle_cast({:task, host}, state) do
@@ -43,7 +49,11 @@ defmodule OctopusPing.NetManager do
 
     # Register the task in the GenServer state, so that we can track which
     # tasks responded with a successful ping request, and which didn't.
-    {:noreply, %{state | tasks: MapSet.put(state.tasks, %{host: host, status: :pending, task: task})}}
+    updated_tasks = MapSet.put(
+      state.tasks,
+      %{host: host, status: :pending, task: task}
+    )
+    {:noreply, %{state | tasks: updated_tasks}}
   end
 
   def handle_cast(:stop_tasks, state), do: {:noreply, %{state | halt: :true}}
