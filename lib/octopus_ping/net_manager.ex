@@ -84,13 +84,13 @@ defmodule OctopusPing.NetManager do
 
   # the request succeeds
   def handle_info({ref, {:ok, _msg}}, state) do
-    updated_tasks = process_task(ref, state, :successful)
+    updated_tasks = process_task_response(ref, state, :successful)
     {:noreply, %{state | tasks: updated_tasks}}
   end
 
   # the request fails
   def handle_info({ref, {:error, _msg}}, state) do
-    updated_tasks = process_task(ref, state, :failed)
+    updated_tasks = process_task_response(ref, state, :failed)
     {:noreply, %{state | tasks: updated_tasks}}
   end
 
@@ -111,7 +111,7 @@ defmodule OctopusPing.NetManager do
 
   defp via_tuple(name), do: {:via, Registry, {OctopusPing.Registry, name}}
 
-  defp process_task(task_reference, state, task_status) do
+  defp process_task_response(task_reference, state, task_status) do
     # demonitor and flush task process.
     Process.demonitor(task_reference, [:flush])
 
