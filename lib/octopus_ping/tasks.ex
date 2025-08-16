@@ -1,7 +1,15 @@
 defmodule OctopusPing.Tasks do
   require Logger
 
-  def ping_host(host) do
+  def ping(target, :ip) do
+    ping_host(target)
+  end
+
+  def ping(target, :url) do
+    curl_site(target)
+  end
+
+  defp ping_host(host) do
     command =
       case :os.type() do
         {:unix, :linux} ->
@@ -24,7 +32,7 @@ defmodule OctopusPing.Tasks do
     end
   end
 
-  def curl_site(site) do
+  defp curl_site(site) do
     args = ["-s", "-o", "/dev/null", "-w", "%{http_code}", site]
 
     case System.cmd("curl", args) do

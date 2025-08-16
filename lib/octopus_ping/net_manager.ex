@@ -25,34 +25,18 @@ defmodule OctopusPing.NetManager do
     Process.send_after(self(), :start_tasks, 60_000)
   end
 
-  def handle_cast({:task, url}, %{network_resource: %{category: :url}} = state) do
+  def handle_cast({:task, target}, %{network_resource: %{category: category}} = state) do
     task =
       Task.Supervisor.async_nolink(
         OctopusPing.TaskSupervisor, # reference the task supervisor by name
-        fn -> Tasks.curl_site(url) end
+        fn -> Tasks.ping(target, category) end
       )
 
     # Register the task in the GenServer state, so that we can track which
-    # tasks responded with a successful curl request, and which didn't.
+    # tasks responded with a success and which didn't.
     updated_tasks = MapSet.put(
       state.tasks,
-      %{url: url, status: :pending, task: task}
-    )
-    {:noreply, %{state | tasks: updated_tasks}}
-  end
-
-  def handle_cast({:task, host}, state) do
-    task =
-      Task.Supervisor.async_nolink(
-        OctopusPing.TaskSupervisor, # reference the task supervisor by name
-        fn -> Tasks.ping_host(host) end
-      )
-
-    # Register the task in the GenServer state, so that we can track which
-    # tasks responded with a successful ping request, and which didn't.
-    updated_tasks = MapSet.put(
-      state.tasks,
-      %{host: host, status: :pending, task: task}
+      %{category: category, target: target, status: :pending, task: task}
     )
     {:noreply, %{state | tasks: updated_tasks}}
   end
@@ -70,10 +54,10 @@ defmodule OctopusPing.NetManager do
     else
       Enum.map(
         state.network_resource.addresses,
-        fn host ->
+        fn target ->
           state.network_resource.name
           |> via_tuple()
-          |> GenServer.cast({:task, host})
+          |> GenServer.cast({:task, target})
         end
       )
 
