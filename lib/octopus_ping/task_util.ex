@@ -54,13 +54,13 @@ defmodule OctopusPing.TaskUtil do
       iex> OctopusPing.NetManager.filter_by_status(:failed, tasks)
       ["8.8.8.8"]
   """
-  def filter_by_status(task_status, tasks) do
+  def filter_targets_by_status(task_status, tasks) do
     Enum.flat_map(
       tasks,
       fn %{status: status} = task ->
         if status == task_status do
-          hosts_or_urls = Map.get(task, :host, Map.get(task, :url))
-          [hosts_or_urls]
+          targets = Map.get(task, :target)
+          [targets]
         else
           []
         end

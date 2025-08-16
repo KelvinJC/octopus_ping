@@ -84,14 +84,14 @@ defmodule OctopusPing.NetManager do
     {:noreply, state}
   end
 
-  def handle_call(:get_successful, _from, state) do
-    hosts_or_urls = TaskUtil.filter_by_status(:successful, state.tasks)
-    {:reply, hosts_or_urls, state}
+  def handle_call(:get_successful, _from, %{tasks: tasks} = state) do
+    targets = TaskUtil.filter_targets_by_status(:successful, tasks)
+    {:reply, targets, state}
   end
 
-  def handle_call(:get_failed, _from, state) do
-    hosts_or_urls = TaskUtil.filter_by_status(:failed, state.tasks)
-    {:reply, hosts_or_urls, state}
+  def handle_call(:get_failed, _from, %{tasks: tasks} = state) do
+    targets = TaskUtil.filter_targets_by_status(:failed, tasks)
+    {:reply, targets, state}
   end
 
   defp via_tuple(name), do: {:via, Registry, {OctopusPing.Registry, name}}
